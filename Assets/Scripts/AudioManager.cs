@@ -94,10 +94,10 @@ public class AudioManager : MonoBehaviour
 
     void Setup()
     {
-        Debug.Log(musicVolume);
-        Debug.Log(masterVolume);
-        Debug.Log(effectVolume);
-        Debug.Log(voiceVolume);
+        musicVolume = musicVolume;
+        masterVolume = masterVolume;
+        effectVolume = effectVolume;
+        voiceVolume = voiceVolume;
     }
 
     void Start()

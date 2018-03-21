@@ -5,6 +5,7 @@ using UnityEngine;
 public class UIScreen : MonoBehaviour
 {
     public static Stack<UIScreen> frameStack = new Stack<UIScreen>();
+    public Animator screenAnimator;
 
     public bool startScreen;
 
@@ -27,6 +28,12 @@ public class UIScreen : MonoBehaviour
 
         gameObject.SetActive(true);
         frameStack.Push(this);
+
+
+        if (screenAnimator != null)
+        {
+            screenAnimator.SetTrigger("On");
+        }
     }
 
     public void CloseScreenAndReturn()

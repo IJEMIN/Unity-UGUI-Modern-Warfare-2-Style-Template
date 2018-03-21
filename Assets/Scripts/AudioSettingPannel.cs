@@ -29,7 +29,6 @@ public class AudioSettingPannel : MonoBehaviour
         {
             return;
         }
-        Debug.Log("Warning");
         AudioManager.instance.masterVolume = masterSlider.value;
         AudioManager.instance.voiceVolume = voiceSlider.value;
         AudioManager.instance.musicVolume = musicSlider.value;
