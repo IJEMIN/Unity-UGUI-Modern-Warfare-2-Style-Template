@@ -1,0 +1,126 @@
+name: CI
+
+on:
+  pull_request: {}
+  push: { branches: [master] }
+
+env:
+  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+  
+jobs:
+  requestManualActivationFile:
+    name: Request manual Activation File
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v1
+      
+      # Request manual activation file
+      - name: Request manual activation file
+        uses: webbertakken/unity-request-manual-activation-file@v1
+        id: getManualLicenseFile
+      
+      # Upload artifact (Unity_v20XX.X.XXX.alf)
+      - name: Expose as artifact
+        uses: actions/upload-artifact@1
+        with:
+          name: Manual Activation File
+          path: ${{ steps.getManualLicenseFile.outpus.filePath }}
+ 
+  requestActivation:
+    name: Requet activation
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout repository
+        - name: Checkout repository
+          uses: actions/checkout@1
+      
+      # Activate Unity
+        - name: Unity - Activate
+          uses: webbertakken/unity-activate@v1
+          env:
+            UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+
+  testRunnerInEditMode:
+    name: Test in editmode
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout repository
+        - name: Checkout repository
+          uses: actions/checkout@v1
+        
+        - name: Run tests
+          id: testRunner
+          uses: webbertakken/unity-test-runner@v1
+          env:
+            UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+            UNITY_PROJECT_PATH: ./
+            TEST_MODE: editmode
+        - name: Expose as artifact
+          uses: actions/upload-artifact@v1
+          with:
+            name: Test results (edit mode)
+            path: ${{ steps.testRunner.outputs.artifactsPath }}
+            
+  testRunnerInPlayMode:
+    name: Test in PlayMode
+    runs-on: [ubuntu-latest]
+    steps:
+      # Checkout repository (required to test local actions)
+      - name: Checkout repository
+        uses: actions/checkout@v1
+      
+      # Configure test runner
+      - name: Run tests
+        id: testRunner
+        uses: webbertakken/unity-test-runner@v1
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_PROJECT_PATH: ./
+          TEST_MODE: playmode
+          
+      # upload artifacts
+      - name: Expose as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: Test results (play mode)
+          path: ${{ steps.testRunner.outputs.artifactsPath }}
+
+  testRunnerInAllModes:
+    name: Test all modes
+    runs-on: [ubuntu-latest]
+    steps:
+      # Checkout repository (required to test local actions)
+      - name: Checkout repository
+        uses: actions/checkout@v1
+      
+      # Configure test runner
+      - name: Run tests
+        id: testRunner
+        uses: webbertakken/unity-test-runner@v1
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_PROJECT_PATH: ./
+          TEST_MODE: all 
+      
+      - name: Expose as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: Test results (all modes)
+          path: ${{ steps.testRunner.outputs.artifactsPath}}
+  
+  buildForWindow:
+    name: Build for StandaloneWidnows64
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: unity-builder@v0.5
+        with:
+          projectPath: ./
+          unityVersion: 2019.2.11f1
+          targetPlatform: StandaloneWindows64
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Build
+          path: build
